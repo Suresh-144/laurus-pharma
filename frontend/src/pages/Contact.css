@@ -1,0 +1,13 @@
+.contact-header { background:var(--green); padding:3.5rem 0 2.5rem; }
+.contact-grid { display:grid; grid-template-columns:1fr 1.6fr; gap:3rem; align-items:start; }
+.info-row { display:flex; align-items:flex-start; gap:1rem; }
+.info-icon { font-size:1.3rem; width:2.4rem; text-align:center; flex-shrink:0; }
+.map-placeholder {
+  background: var(--green-light); border:1.5px solid var(--border);
+  border-radius:var(--radius); height:160px;
+  display:flex; align-items:center; justify-content:center;
+  color:var(--green-mid); font-family:var(--font-head); font-weight:600; font-size:.9rem;
+}
+@media(max-width:768px){
+  .contact-grid { grid-template-columns:1fr; }
+}

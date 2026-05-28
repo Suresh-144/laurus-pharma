@@ -1,0 +1,129 @@
+/* ─── Design Tokens ───────────────────────────────────────────────────── */
+:root {
+  --green:       #1a3a2e;   /* deep forest — primary brand */
+  --green-mid:   #2d5a44;
+  --green-light: #e8f0eb;
+  --gold:        #c8993a;   /* warm gold accent */
+  --gold-light:  #f5e8cc;
+  --cream:       #faf8f3;   /* page background */
+  --white:       #ffffff;
+  --ink:         #1c2b24;   /* dark text */
+  --muted:       #5a7066;
+  --border:      #d4ddd8;
+  --error:       #c0392b;
+  --success:     #1a7a4e;
+  --radius:      10px;
+  --shadow:      0 2px 16px rgba(26,58,46,.10);
+  --shadow-lg:   0 8px 40px rgba(26,58,46,.15);
+  --font-head:   'Syne', sans-serif;
+  --font-body:   'Lora', Georgia, serif;
+  --trans:       180ms ease;
+}
+
+/* ─── Reset ───────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { font-family: var(--font-body); background: var(--cream); color: var(--ink); line-height: 1.65; }
+img, svg { display: block; max-width: 100%; }
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; cursor: pointer; border: none; background: none; }
+input, textarea, select { font-family: inherit; }
+
+/* ─── Typography scale ────────────────────────────────────────────────── */
+h1,h2,h3,h4 { font-family: var(--font-head); line-height: 1.15; color: var(--ink); }
+h1 { font-size: clamp(2.2rem, 5vw, 3.6rem); font-weight: 800; }
+h2 { font-size: clamp(1.6rem, 3vw, 2.4rem); font-weight: 700; }
+h3 { font-size: 1.25rem; font-weight: 600; }
+
+/* ─── Layout helpers ──────────────────────────────────────────────────── */
+.container { max-width: 1140px; margin: 0 auto; padding: 0 1.5rem; }
+.section    { padding: 5rem 0; }
+.section-sm { padding: 3rem 0; }
+.grid-2  { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+.grid-3  { display: grid; grid-template-columns: repeat(3,1fr); gap: 1.75rem; }
+.flex-center { display: flex; align-items: center; justify-content: center; }
+.flex-between{ display: flex; align-items: center; justify-content: space-between; }
+.gap-1 { gap: .5rem; } .gap-2 { gap: 1rem; } .gap-3 { gap: 1.5rem; }
+.mt-1{margin-top:.5rem}.mt-2{margin-top:1rem}.mt-3{margin-top:1.5rem}.mt-4{margin-top:2rem}
+.mb-1{margin-bottom:.5rem}.mb-2{margin-bottom:1rem}.mb-3{margin-bottom:1.5rem}
+.text-center { text-align: center; }
+.text-muted  { color: var(--muted); font-size: .92rem; }
+
+/* ─── Buttons ─────────────────────────────────────────────────────────── */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: .45rem;
+  padding: .65rem 1.6rem; border-radius: var(--radius); font-family: var(--font-head);
+  font-size: .9rem; font-weight: 600; letter-spacing: .02em;
+  transition: var(--trans); cursor: pointer; white-space: nowrap;
+}
+.btn-primary   { background: var(--green); color: #fff; }
+.btn-primary:hover { background: var(--green-mid); transform: translateY(-1px); box-shadow: var(--shadow); }
+.btn-outline   { background: transparent; color: var(--green); border: 2px solid var(--green); }
+.btn-outline:hover { background: var(--green); color: #fff; }
+.btn-gold      { background: var(--gold); color: #fff; }
+.btn-gold:hover{ background: #b8882e; transform: translateY(-1px); }
+.btn-danger    { background: var(--error); color: #fff; }
+.btn-danger:hover{ background: #a93226; }
+.btn-sm        { padding: .45rem 1rem; font-size: .82rem; }
+.btn-full      { width: 100%; }
+.btn:disabled  { opacity: .5; cursor: not-allowed; transform: none !important; }
+
+/* ─── Cards ───────────────────────────────────────────────────────────── */
+.card {
+  background: var(--white); border-radius: var(--radius);
+  box-shadow: var(--shadow); overflow: hidden;
+  transition: transform var(--trans), box-shadow var(--trans);
+}
+.card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
+
+/* ─── Badge ───────────────────────────────────────────────────────────── */
+.badge {
+  display: inline-block; padding: .2rem .75rem; border-radius: 20px;
+  font-family: var(--font-head); font-size: .75rem; font-weight: 600; letter-spacing: .04em;
+}
+.badge-green { background: var(--green-light); color: var(--green); }
+.badge-gold  { background: var(--gold-light);  color: #7a5a1a; }
+.badge-rx    { background: #fff0f0; color: #a03020; }
+
+/* ─── Form elements ───────────────────────────────────────────────────── */
+.field { display: flex; flex-direction: column; gap: .4rem; }
+.field label { font-family: var(--font-head); font-size: .82rem; font-weight: 600; color: var(--muted); letter-spacing: .05em; text-transform: uppercase; }
+.field input, .field textarea, .field select {
+  padding: .7rem 1rem; border: 1.5px solid var(--border);
+  border-radius: var(--radius); font-size: .95rem; color: var(--ink);
+  background: var(--white); transition: border-color var(--trans);
+  outline: none; width: 100%;
+}
+.field input:focus, .field textarea:focus, .field select:focus { border-color: var(--green); }
+.field textarea { resize: vertical; min-height: 120px; }
+.field.error input, .field.error textarea { border-color: var(--error); }
+.field .err-msg { font-size: .82rem; color: var(--error); }
+
+/* ─── Alerts ──────────────────────────────────────────────────────────── */
+.alert { padding: .85rem 1.2rem; border-radius: var(--radius); font-size: .9rem; border-left: 4px solid; margin-bottom: 1rem; }
+.alert-error   { background: #fdf0ee; border-color: var(--error); color: var(--error); }
+.alert-success { background: #edf7f2; border-color: var(--success); color: var(--success); }
+
+/* ─── Divider ─────────────────────────────────────────────────────────── */
+.divider { height: 1px; background: var(--border); margin: 2rem 0; }
+
+/* ─── Tag pill ────────────────────────────────────────────────────────── */
+.tag { display:inline-block; background:var(--green-light); color:var(--green-mid); border-radius:6px; padding:.15rem .6rem; font-family:var(--font-head); font-size:.78rem; font-weight:600; }
+
+/* ─── Spinner ─────────────────────────────────────────────────────────── */
+.spinner { width:36px; height:36px; border:3px solid var(--border); border-top-color:var(--green); border-radius:50%; animation:spin .7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ─── Page fade-in ────────────────────────────────────────────────────── */
+.page-enter { animation: fadeUp .35s ease both; }
+@keyframes fadeUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:none; } }
+
+/* ─── Responsive ──────────────────────────────────────────────────────── */
+@media(max-width:900px){
+  .grid-3 { grid-template-columns: 1fr 1fr; }
+  .section { padding: 3.5rem 0; }
+}
+@media(max-width:600px){
+  .grid-2,.grid-3 { grid-template-columns: 1fr; }
+  .section { padding: 2.5rem 0; }
+}

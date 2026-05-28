@@ -1,10 +1,6 @@
 # Laurus Pharmaceuticals — Full-Stack Web Application
 
-A complete, production-ready pharmaceutical web app built with **Node.js + Express** (backend) and **React** (frontend), using **MongoDB** as the database.
-
----
-
-## 📁 Project Structure
+# project structure
 
 ```
 laurus/
@@ -46,14 +42,6 @@ laurus/
     │   └── index.css           # Design system (tokens, utilities, components)
     └── package.json
 ```
-
----
-
-## ⚡ Prerequisites
-
-- **Node.js** ≥ 18
-- **MongoDB** running locally (`mongod`) OR a free [MongoDB Atlas](https://cloud.mongodb.com) cluster
-- **npm** ≥ 9
 
 ---
 
@@ -115,75 +103,3 @@ Frontend runs at → **http://localhost:3000**
 
 ---
 
-## 🔑 Demo Credentials
-
-| Role  | Email                | Password   |
-|-------|----------------------|------------|
-| Admin | admin@laurus.com     | admin123   |
-| User  | *(register any)*     | ≥ 6 chars  |
-
----
-
-## 🌐 API Reference
-
-### Auth
-| Method | Endpoint              | Auth      | Description           |
-|--------|-----------------------|-----------|-----------------------|
-| POST   | `/api/auth/register`  | Public    | Create user account   |
-| POST   | `/api/auth/login`     | Public    | Get JWT token         |
-| GET    | `/api/auth/me`        | Bearer    | Current user info     |
-
-### Products
-| Method | Endpoint              | Auth      | Description           |
-|--------|-----------------------|-----------|-----------------------|
-| GET    | `/api/products`       | Public    | List (search/filter)  |
-| GET    | `/api/products/:id`   | Public    | Single product        |
-| POST   | `/api/products`       | Admin     | Create product        |
-| PUT    | `/api/products/:id`   | Admin     | Update product        |
-| DELETE | `/api/products/:id`   | Admin     | Delete product        |
-
-Query params for `GET /api/products`:  
-`?search=amox&category=Antibiotics&page=2`
-
-### Contact
-| Method | Endpoint        | Auth   | Description         |
-|--------|-----------------|--------|---------------------|
-| POST   | `/api/contact`  | Public | Submit contact form |
-
----
-
-## 🛡️ Security Highlights
-
-- **Passwords** hashed with bcrypt (10 rounds)
-- **JWT** tokens signed with secret, expire in 7 days
-- **Rate limiting** on all API routes (100 req/15 min)
-- **Input validation** via express-validator (backend) + inline checks (frontend)
-- **Role-based access**: admin routes protected by `adminOnly` middleware
-- CORS restricted to frontend origin
-
----
-
-## ☁️ Free-Tier Deployment
-
-| Service   | What to deploy       | Free tier            |
-|-----------|----------------------|----------------------|
-| Render    | Backend (Node.js)    | 750 hrs/month        |
-| Vercel    | Frontend (React)     | Unlimited hobby      |
-| Atlas     | MongoDB              | 512 MB cluster       |
-
-**Steps:**
-1. Push code to GitHub
-2. Create MongoDB Atlas cluster → copy URI → set as env var
-3. Deploy backend to Render (set `MONGODB_URI`, `JWT_SECRET`, `FRONTEND_URL`)
-4. Deploy frontend to Vercel (set `REACT_APP_API_URL` = Render URL)
-
----
-
-## 📝 Key Design Decisions
-
-- **Single `.env`** file — no secrets in code
-- **Soft imports** — no TypeScript or build toolchain beyond CRA
-- **CRA proxy** (`"proxy": "http://localhost:5000"`) eliminates CORS issues in dev
-- **Paginated products** (9/page) — keeps free-tier DB reads low
-- **Soft deletes NOT used** — products are hard-deleted (simpler schema)
-- **No image uploads** — keeps app stateless and free-tier compatible

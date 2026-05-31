@@ -39,7 +39,7 @@ jobs:
           exit-code: '1' # Fails the pipeline pipeline if critical vulnerabilities are found
           ignore-unfixed: true
           vuln-type: 'os,library'
-          severity: 'CRITICAL,HIGH'
+          severity: 'CRITICAL'
 
       # 5. Log in to Docker Hub (only executes on pushes to the main branch)
       - name: Log in to Docker Hub

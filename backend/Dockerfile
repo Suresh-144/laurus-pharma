@@ -1,6 +1,6 @@
 # Stage 1: Build & Install Dependencies
 
-FROM node:18-alpine3.22 AS builder
+FROM node:18-alpine3.20 AS builder
 
 WORKDIR /usr/src/app
 
@@ -19,7 +19,7 @@ RUN npm prune --production
 
 # Stage 2: Final Production Image
 
-FROM node:18-alpine3.22 AS runner
+FROM node:18-alpine3.20 AS runner
 
 WORKDIR /usr/src/app
 

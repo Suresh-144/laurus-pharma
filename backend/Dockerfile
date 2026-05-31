@@ -2,7 +2,7 @@
 
 FROM node:18-alpine3.20 AS builder
 
-RUN apt-get update && apt-get upgrade -y && apt-get clean && rm -rf /var/lib/apt/lists/*
+RUN apk update && apk upgrade && apk cache clean && rm -rf /var/cache/apk/*
 
 WORKDIR /usr/src/app
 

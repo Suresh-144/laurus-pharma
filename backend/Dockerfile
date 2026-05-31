@@ -23,6 +23,8 @@ RUN npm prune --production
 
 FROM node:18-alpine3.20 AS runner
 
+RUN apk update && apk upgrade --no-cache
+
 WORKDIR /usr/src/app
 
 # Set production environment flags

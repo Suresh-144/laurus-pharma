@@ -16,10 +16,6 @@ jobs:
     name: Frontend - Scan & Push
     runs-on: ubuntu-latest
     # Only runs if there are actual changes inside the frontend directory
-    if: |
-      contains(github.event.head_commit.modified, 'frontend/') || 
-      contains(github.event.head_commit.added, 'frontend/')
-
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -72,10 +68,6 @@ jobs:
     name: Backend - Scan & Push
     runs-on: ubuntu-latest
     # Only runs if there are actual changes inside the backend directory
-    if: |
-      contains(github.event.head_commit.modified, 'backend/') || 
-      contains(github.event.head_commit.added, 'backend/')
-
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4

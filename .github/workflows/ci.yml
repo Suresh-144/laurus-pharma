@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+    # This ensures the workflow registers the event if any of these paths change
     paths:
       - 'frontend/**'
       - 'backend/**'
@@ -15,15 +16,30 @@ jobs:
   frontend-pipeline:
     name: Frontend - Scan & Push
     runs-on: ubuntu-latest
-    # Only runs if there are actual changes inside the frontend directory
+    # Using a change-detection action is cleaner, but paths-filter under 'on:' handles this.
+    # We remove the complex head_commit string checking to prevent engine evaluation bugs.
+    
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 2 # Fetches the current commit and its parent to evaluate path changes
+
+      # Double checks path modification explicitly using a dedicated action
+      - name: Check for Frontend Changes
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            frontend:
+              - 'frontend/**'
 
       - name: Set up Docker Buildx
+        if: steps.filter.outputs.frontend == 'true'
         uses: docker/setup-buildx-action@v3
 
       - name: Build Local Frontend Image for Scanning
+        if: steps.filter.outputs.frontend == 'true'
         uses: docker/build-push-action@v5
         with:
           context: ./frontend
@@ -34,22 +50,25 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: Run Trivy Security Scan on Frontend
+        if: steps.filter.outputs.frontend == 'true'
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: '${{ secrets.DOCKERHUB_USERNAME }}/laurus-frontend:test'
           format: 'table'
-          exit-code: '1' # Fails the pipeline if CRITICAL or HIGH vulnerabilities are found
+          exit-code: '1'
           ignore-unfixed: true
           vuln-type: 'os,library'
-          severity: 'CRITICAL'
+          severity: 'CRITICAL,HIGH'
 
       - name: Log in to Docker Hub
+        if: steps.filter.outputs.frontend == 'true' && github.event_name != 'pull_request'
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Push Verified Frontend Image
+        if: steps.filter.outputs.frontend == 'true' && github.event_name != 'pull_request'
         uses: docker/build-push-action@v5
         with:
           context: ./frontend
@@ -67,15 +86,27 @@ jobs:
   backend-pipeline:
     name: Backend - Scan & Push
     runs-on: ubuntu-latest
-    # Only runs if there are actual changes inside the backend directory
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Check for Backend Changes
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            backend:
+              - 'backend/**'
 
       - name: Set up Docker Buildx
+        if: steps.filter.outputs.backend == 'true'
         uses: docker/setup-buildx-action@v3
 
       - name: Build Local Backend Image for Scanning
+        if: steps.filter.outputs.backend == 'true'
         uses: docker/build-push-action@v5
         with:
           context: ./backend
@@ -86,22 +117,25 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: Run Trivy Security Scan on Backend
+        if: steps.filter.outputs.backend == 'true'
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: '${{ secrets.DOCKERHUB_USERNAME }}/laurus-backend:test'
           format: 'table'
-          exit-code: '1' # Fails the pipeline if CRITICAL or HIGH vulnerabilities are found
+          exit-code: '1'
           ignore-unfixed: true
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH'
 
       - name: Log in to Docker Hub
+        if: steps.filter.outputs.backend == 'true' && github.event_name != 'pull_request'
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Push Verified Backend Image
+        if: steps.filter.outputs.backend == 'true' && github.event_name != 'pull_request'
         uses: docker/build-push-action@v5
         with:
           context: ./backend

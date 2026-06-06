@@ -1,0 +1,39 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: laurus-pharma-ingress
+  namespace: laurus-apps
+  annotations:
+    # Specifies the use of the NGINX Ingress Controller
+    kubernetes.io/ingress.class: "nginx"
+    
+    # Enables reverse-proxy affinity and session handling controls if needed
+    nginx.ingress.kubernetes.io/ssl-redirect: "false" # Set to true once SSL certificates are installed
+    
+    # Adjusts the maximum allowed upload body size (useful if uploading product images)
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+spec:
+  rules:
+    # Replace with your actual domain name (e.g., lauruspharma.com)
+    # If testing locally on Minikube or Docker Desktop, you can omit the host line 
+    # or map it inside your local machine's /etc/hosts file.
+    - host: lauruspharma.local 
+      http:
+        paths:
+          # 1. Route all backend API interactions directly to the backend service
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: laurus-backend-service
+                port:
+                  number: 80 # Routes to Port 80 defined in backend.yml
+
+          # 2. Route all standard web traffic to the React static frontend interface
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: laurus-frontend-service
+                port:
+                  number: 80 # Routes to Port 80 defined in frontend.yml

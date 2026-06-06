@@ -1,57 +1,115 @@
-name: CI/CD Pipeline
+name: Production CI/CD - Build, Scan, and Push Images
 
 on:
   push:
     branches:
       - main
+    paths:
+      - 'frontend/**'
+      - 'backend/**'
 
 jobs:
-  build-and-scan:
-    name: Build, Scan & Push Image
+  # =========================================================================
+  # 1. Frontend Pipeline Job
+  # =========================================================================
+  frontend-pipeline:
+    name: Frontend - Scan & Push
     runs-on: ubuntu-latest
+    # Only runs if there are actual changes inside the frontend directory
+    if: |
+      contains(github.event.head_commit.modified, 'frontend/') || 
+      contains(github.event.head_commit.added, 'frontend/')
 
     steps:
-      # 1. Check out the repository source code
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # 2. Set up Docker Buildx for optimization and caching
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      # 3. Build the Docker image locally to scan it before pushing
-      - name: Build Local Image for Scanning
+      - name: Build Local Frontend Image for Scanning
         uses: docker/build-push-action@v5
         with:
-          context: ./backend
-          file: ./backend/Dockerfile
-          load: true # Loads the image locally so it is accessible by Trivy
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/laurus-backend:test
+          context: ./frontend
+          file: ./frontend/Dockerfile
+          load: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/laurus-frontend:test
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      # 4. Run Trivy Vulnerability Scan on the local image
-      - name: Run Trivy Vulnerability Scanner
+      - name: Run Trivy Security Scan on Frontend
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: '${{ secrets.DOCKERHUB_USERNAME }}/laurus-backend:test'
+          image-ref: '${{ secrets.DOCKERHUB_USERNAME }}/laurus-frontend:test'
           format: 'table'
-          exit-code: '1' # Fails the pipeline pipeline if critical vulnerabilities are found
+          exit-code: '1' # Fails the pipeline if CRITICAL or HIGH vulnerabilities are found
           ignore-unfixed: true
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH'
 
-      # 5. Log in to Docker Hub (only executes on pushes to the main branch)
       - name: Log in to Docker Hub
-        if: github.event_name != 'pull_request'
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      # 6. Push the verified image to Docker Hub with tags
-      - name: Build and Push Verified Image
-        if: github.event_name != 'pull_request'
+      - name: Push Verified Frontend Image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./frontend
+          file: ./frontend/Dockerfile
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/laurus-frontend:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/laurus-frontend:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # =========================================================================
+  # 2. Backend Pipeline Job
+  # =========================================================================
+  backend-pipeline:
+    name: Backend - Scan & Push
+    runs-on: ubuntu-latest
+    # Only runs if there are actual changes inside the backend directory
+    if: |
+      contains(github.event.head_commit.modified, 'backend/') || 
+      contains(github.event.head_commit.added, 'backend/')
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Local Backend Image for Scanning
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend
+          file: ./backend/Dockerfile
+          load: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/laurus-backend:test
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Run Trivy Security Scan on Backend
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: '${{ secrets.DOCKERHUB_USERNAME }}/laurus-backend:test'
+          format: 'table'
+          exit-code: '1' # Fails the pipeline if CRITICAL or HIGH vulnerabilities are found
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Push Verified Backend Image
         uses: docker/build-push-action@v5
         with:
           context: ./backend

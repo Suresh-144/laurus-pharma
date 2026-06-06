@@ -1,10 +1,6 @@
 name: Production CI/CD - Build, Scan, and Push Images
 
-on:
-  push:
-    branches:
-      - main
-      - master
+on: [push, workflow_dispatch]
     # This ensures the workflow registers the event if any of these paths change
     paths:
       - 'frontend/**'

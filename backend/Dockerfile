@@ -1,6 +1,8 @@
 # Stage 1: Build & Install Dependencies
 
-FROM node:18-alpine3.22 AS builder
+FROM node:18-alpine3.20 AS builder
+
+RUN apk update && apk upgrade && apk cache clean && rm -rf /var/cache/apk/*
 
 WORKDIR /usr/src/app
 
@@ -19,7 +21,9 @@ RUN npm prune --production
 
 # Stage 2: Final Production Image
 
-FROM node:18-alpine3.22 AS runner
+FROM node:18-alpine3.20 AS runner
+
+RUN apk update && apk upgrade --no-cache
 
 WORKDIR /usr/src/app
 

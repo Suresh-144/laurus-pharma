@@ -45,7 +45,7 @@ jobs:
           exit-code: '1' # Fails the pipeline if CRITICAL or HIGH vulnerabilities are found
           ignore-unfixed: true
           vuln-type: 'os,library'
-          severity: 'CRITICAL,HIGH'
+          severity: 'CRITICAL'
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v3

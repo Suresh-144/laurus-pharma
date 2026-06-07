@@ -1,11 +1,9 @@
 # ──────────────────────────────────────────────
-# Stage 1: Install all dependencies (dev + prod)
+# Stage 1: Install dependencies
 # ──────────────────────────────────────────────
 FROM node:18-alpine AS deps
 
-RUN apk update && apk upgrade && rm -rf /var/cache/apk/*
-
-WORKDIR /usr/src/app
+WORKDIR /app
 
 COPY package*.json ./
 RUN npm ci
@@ -17,45 +15,38 @@ FROM deps AS test
 
 COPY . .
 
-# Run lint + unit tests (Jest).
-# CI=true makes test runner non-interactive and exits non-zero on failure.
 ENV CI=true
 RUN npm test --if-present
 
 # ──────────────────────────────────────────────
-# Stage 3: Prune to production deps
+# Stage 3: Build React production bundle
 # ──────────────────────────────────────────────
 FROM deps AS builder
 
 COPY . .
-RUN npm prune --production
+
+ARG REACT_APP_API_URL=http://localhost:5000
+ENV REACT_APP_API_URL=$REACT_APP_API_URL
+
+RUN npm run build
 
 # ──────────────────────────────────────────────
-# Stage 4: Lean production image
+# Stage 4: Serve with serve (pure Node, no Nginx)
 # ──────────────────────────────────────────────
 FROM node:18-alpine AS runner
 
-RUN apk update && apk upgrade --no-cache && rm -rf /var/cache/apk/*
+# 'serve' is a zero-config static file server by Vercel
+RUN npm install -g serve
 
-WORKDIR /usr/src/app
+WORKDIR /app
 
-ENV NODE_ENV=production
-ENV PORT=5000
+COPY --from=builder /app/build ./build
 
-# Copy only what's needed to run
-COPY --from=builder /usr/src/app/node_modules ./node_modules
-COPY --from=builder /usr/src/app/package*.json ./
-COPY --from=builder /usr/src/app/server.js    ./server.js
-COPY --from=builder /usr/src/app/routes       ./routes
-COPY --from=builder /usr/src/app/models       ./models
-COPY --from=builder /usr/src/app/middleware   ./middleware
+EXPOSE 3000
 
-# Non-root user for security
-USER node
+HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
+  CMD wget -qO- http://localhost:3000 || exit 1
 
-EXPOSE 5000
-
-HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-  CMD wget -qO- http://localhost:5000/api/health || exit 1
-
-CMD ["node", "server.js"]
+# -s = single-page app mode (falls back to index.html for all routes)
+# -l 3000 = listen on port 3000
+CMD ["serve", "-s", "build", "-l", "3000"]
